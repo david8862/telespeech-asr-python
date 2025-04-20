@@ -17,12 +17,30 @@
 
 ### 1. 安装依赖
 
+torch版runtime需要安装kaldifest和requirements.txt里面的依赖
+kaldifest 安装参看 [官方文档](https://github.com/csukuangfj/kaldifeat)
+
+```bash
+pip install -r requirements.txt
+```
+
+
 onnxruntime 只需要安装requirements-onnxruntime.txt里面的依赖即可
 ```bash
 pip install -r requirements-onnxruntime.txt
 ```
 
-### 2. 下载模型
+### 2. 官方fairseq模型转换（可选）
+由于本人修改该模型中的键值key，删掉了checkpoint的多余信息，因此本项目不兼容官方原版checkpoint。
+可以使用下面的脚本转换，或跳转到第三步下载模型。
+
+```bash
+python telespeechasr/torch/utils/convert_fairseq_checkpoint.py --input /path/finetune_large_kespeech.pt --output /path/torch_checkpoint.pt
+```
+
+### 3. 下载模型
+
+
 
 从huggingface
 ```bash
@@ -32,7 +50,7 @@ wget https://huggingface.co/lovemefan/telespeech/resolve/main/finetune_large_kes
 wget https://hf-mirror.com/lovemefan/telespeech/resolve/main/finetune_large_kespeech.pt?download=true -O finetune_large_kespeech.pt
 ```
 
-### 3. 模型导出
+### 4. 模型导出
 
 <font color='brown'>如果修改了词表，需要手动修改torchscript_export.py
 或onnx_export.py中的词表大小</font>
@@ -40,25 +58,41 @@ wget https://hf-mirror.com/lovemefan/telespeech/resolve/main/finetune_large_kesp
 Data2VecMultiModel(vocab_size=7535)
 ```
 
-1. onnx 导出
+1. torchscript 导出
+
+
+```bash
+PYTHONPATH=$PWD python telespeechasr/torchscript/torchscript_export.py --model_path /path/torch_checkpoint.pt \
+--output_dir /path/output_dir
+```
+2. onnx 导出
+
+```
 
 ```bash
 PYTHONPATH=$PWD python telespeechasr/onnx/onnx_export.py --model_path /path/torch_checkpoint.pt
 --output_dir /path/output_dir
 ```
 
-### 4. 模型推理（目前还不支持batch解码）
+### 5. 模型推理（目前还不支持batch解码）
 
 **以下模型都可在huggingface [下载](https://huggingface.co/lovemefan/telespeech/tree/main)**
 
-1. onnx 推理, 支持gpu，cpu推理
+1. torch推理， 支持cpu, cuda, mps
+```bash
+
+PYTHONPATH=$PWD python telespeechasr/torch/infer.py --model_path /path/finetune_large_kespeech.pt --audio_path /path/audio.wav
+```
+2. torchscript 推理， 支持cpu, cuda, mps
+
+```bash
+PYTHONPATH=$PWD python telespeechasr/torchscript/torchscript_infer.py --model_path /path/model_export_torchscript.pt
+--audio_path /path/audio.wav
+--device cpu
+```
+
+3. onnx 推理, 支持gpu，cpu推理
 ```bash
 PYTHONPATH=$PWD python telespeechasr/onnx/onnx_infer.py --model_path /path/model_export.onnx
 --audio_path /path/audio.wav
-```
-
-2. onnx 批量推理, 可成批处理一个目录下的全部wav音频文件，并将识别结果文本保存为指定输出目录下的同名txt文件。支持gpu，cpu推理
-```bash
-PYTHONPATH=$PWD python telespeechasr/onnx/onnx_batch_infer.py --model_path /path/model_export.onnx
---audio_path /path/audio_path/ --output_path /path/output/ --device cuda
 ```
