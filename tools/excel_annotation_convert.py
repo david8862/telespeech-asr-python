@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-""" a simple tool to convert excel format annotation to one txt per person.
+""" a simple tool to convert excel format annotation to one txt per audio.
 Reference from:
 https://www.cnblogs.com/flyup/p/15264897.html
 """
@@ -13,8 +13,8 @@ def excel_annotation_convert(input_excel, output_path, content_only):
     # excel sheet format:
     #
     # audio_name | speech content | speech rate | gender | age | area
-    # 00001.wav  |   你好，石头   |    常速     |   女   | 25  | 北京
-    # 00002.wav  |    开始清洁    |    常速     |   女   | 30  | 上海
+    # 00001.wav  |    客厅扫拖    |    常速     |   男   | 25  | 成都
+    # 00002.wav  |      集尘      |    常速     |   男   | 35  | 重庆
     # ......
     #
     df = pd.read_excel(input_excel)
@@ -25,6 +25,9 @@ def excel_annotation_convert(input_excel, output_path, content_only):
     for i in range(audio_num):
         # parse annotation content
         audio_file_name = df.values[i, 0]
+        if not audio_file_name.endswith('.wav')
+            audio_file_name = os.path.splitext(audio_file_name)[0] + '.wav'
+
         speech_content = df.values[i, 1]
         speech_rate = df.values[i, 2]
         gender = df.values[i, 3]
@@ -37,21 +40,21 @@ def excel_annotation_convert(input_excel, output_path, content_only):
         txt_file = open(txt_file_name, 'w')
 
         # write speech content
-        txt_file.write(speech_content)
+        txt_file.write(str(speech_content))
         txt_file.write('\n')
 
         # write other annotation info if needed
         if not content_only:
-            txt_file.write(speech_rate)
+            txt_file.write(str(speech_rate))
             txt_file.write('\n')
 
-            txt_file.write(gender)
+            txt_file.write(str(gender))
             txt_file.write('\n')
 
-            txt_file.write(age)
+            txt_file.write(str(age))
             txt_file.write('\n')
 
-            txt_file.write(area)
+            txt_file.write(str(area))
             txt_file.write('\n')
         txt_file.close()
         pbar.update(1)

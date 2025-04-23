@@ -1,8 +1,5 @@
-# -*- coding:utf-8 -*-
-# @FileName  :onnx_infer.py
-# @Time      :2024/6/3 15:33
-# @Author    :lovemefan
-# @Email     :lovemefan@outlook.com
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 import argparse
 import json
 import logging
