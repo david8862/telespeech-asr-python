@@ -2,13 +2,17 @@
 # -*- coding: utf-8 -*-
 """ a simple tool to run ASR inference with OpenAI Whisper model
 Reference from:
+https://github.com/openai/whisper
 https://blog.csdn.net/hhy321/article/details/134897967
+https://github.com/openai/whisper/discussions/1576
+https://github.com/ggml-org/whisper.cpp
 https://huggingface.co/mpoyraz/wav2vec2-xls-r-300m-cv7-turkish
 
 openai-whisper could be installed with following cmd:
+apt install ffmpeg
 pip install openai-whisper
 pip install --upgrade --no-deps --force-reinstall git+https://github.com/openai/whisper.git
-pip install zhconv wheel
+pip install ffmpeg zhconv wheel
 
 install PyTorch if needed:
 pip install torch torchvision torchaudio
@@ -23,7 +27,12 @@ import whisper
 import zhconv
 
 
-def whisper_batch_inference(input_audio_path, model_type, language, no_speech_threshold, with_timestamp, fp16, output_path):
+def whisper_batch_inference(input_audio_path, model_type, task, language, no_speech_threshold, with_timestamp, fp16, output_path):
+    # translate task only supported by model type 'tiny.en', 'base.en', 'small.en' and 'medium.en'
+    if task == 'translate' and model_type not in ('tiny.en', 'base.en', 'small.en', 'medium.en'):
+        print("translate task only supported by model type 'tiny.en', 'base.en', 'small.en' and 'medium.en'")
+        return
+
     # get .wav audio file list or single .wav audio file
     if os.path.isfile(input_audio_path):
         audio_list = [input_audio_path]
@@ -33,11 +42,13 @@ def whisper_batch_inference(input_audio_path, model_type, language, no_speech_th
     os.makedirs(output_path, exist_ok=True)
 
     model = whisper.load_model(model_type)
+    print('model "%s" support %d types of language' % (model_type, model.num_languages))
 
     pbar = tqdm(total=len(audio_list), desc='Whisper ASR inference')
     for audio_file in audio_list:
         result = model.transcribe(audio_file,
                                   language=language,
+                                  task=task,
                                   verbose=None,  # None/True/False
                                   compression_ratio_threshold=2.4,  # if gzip compression ratio above this value, treat as failed
                                   logprob_threshold=-1.0,  # if avg_logprob below this value, treat as failed
@@ -58,7 +69,7 @@ def whisper_batch_inference(input_audio_path, model_type, language, no_speech_th
         # save ASR result to txt file
         txt_file_basename = os.path.splitext(os.path.split(audio_file)[-1])[0]
         txt_file_name = os.path.join(output_path, txt_file_basename + '.txt')
-        txt_file = open(txt_file_name, 'w')
+        txt_file = open(txt_file_name, 'w', encoding='utf-8')
 
         if with_timestamp:
             # Whisper ASR segments format:
@@ -103,9 +114,9 @@ def whisper_batch_inference(input_audio_path, model_type, language, no_speech_th
     pbar.close()
 
     if with_timestamp:
-        print('\nCheck finished. Speech content and start & stop time has been saved to %s' % output_path)
+        print('\nInference done. Speech content and start & stop time has been saved to %s' % output_path)
     else:
-        print('\nCheck finished. Speech content has been saved to %s' % output_path)
+        print('\nInference done. Speech content has been saved to %s' % output_path)
 
     return
 
@@ -118,6 +129,9 @@ def main():
     parser.add_argument('--model_type', type=str, required=False, default='tiny',
                         choices=['tiny.en', 'tiny', 'base.en', 'base', 'small.en', 'small', 'medium.en', 'medium', 'large-v1', 'large-v2', 'large-v3', 'large', 'large-v3-turbo', 'turbo'],
                         help="Whisper model type to use. default=%(default)s")
+    parser.add_argument('--task', type=str, required=False, default='transcribe',
+                        choices=['transcribe', 'translate'],
+                        help='Whether to perform X->X speech recognition (transcribe) or X->English translation (translate). default=%(default)s')
     parser.add_argument('--language', type=str, required=False, default=None,
                         choices=[None, 'zh', 'en', 'fr', 'de', 'it', 'es', 'ja', 'ko', 'ru', 'tr', 'th'],
                         help = "Target language to transcribe, None for auto-detect. default=%(default)s")
@@ -131,7 +145,7 @@ def main():
                         help='output path to save transcribe text into txt files. default=%(default)s')
     args = parser.parse_args()
 
-    whisper_batch_inference(args.input_audio_path, args.model_type, args.language, args.no_speech_threshold, args.with_timestamp, args.fp16, args.output_path)
+    whisper_batch_inference(args.input_audio_path, args.model_type, args.task, args.language, args.no_speech_threshold, args.with_timestamp, args.fp16, args.output_path)
 
 
 if __name__ == "__main__":

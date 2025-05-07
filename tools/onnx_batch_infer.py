@@ -242,7 +242,7 @@ if __name__ == "__main__":
             os.makedirs(args.output_path, exist_ok=True)
             audio_file_basename = os.path.splitext(os.path.split(audio_file)[-1])[0]
             output_file_name = os.path.join(args.output_path, audio_file_basename+'.txt')
-            output_file = open(output_file_name, 'w')
+            output_file = open(output_file_name, 'w', encoding='utf-8')
             output_file.write(asr_result.lower())
             output_file.write('\n')
             output_file.close()
@@ -256,7 +256,7 @@ if __name__ == "__main__":
             os.makedirs(args.output_path, exist_ok=True)
             audio_file_basename = os.path.splitext(os.path.split(audio_file)[-1])[0]
             output_file_name = os.path.join(args.output_path, audio_file_basename+'.txt')
-            output_file = open(output_file_name, 'w')
+            output_file = open(output_file_name, 'w', encoding='utf-8')
             output_file.write(asr_result.lower())
             output_file.write('\n')
             output_file.close()

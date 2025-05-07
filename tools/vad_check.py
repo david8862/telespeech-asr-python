@@ -107,7 +107,7 @@ def vad_check(input_audio_path, aggressiveness_mode, frame_duration, output_path
 
         txt_file_basename = os.path.splitext(os.path.split(audio_file)[-1])[0]
         txt_file_name = os.path.join(output_path, txt_file_basename + '.txt')
-        txt_file = open(txt_file_name, 'a+')  # append the text in file, if needed
+        txt_file = open(txt_file_name, 'a+', encoding='utf-8')  # append the text in file, if needed
 
         # write speech start/stop time, 1 time per line, like:
         # cat output/00001.txt

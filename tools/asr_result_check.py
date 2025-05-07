@@ -64,13 +64,13 @@ def asr_result_check(audio_path, asr_result_path, annotation_path, keep_num, out
             continue
 
         # just read 1st line of ASR result file (speech content)
-        asr_result_file = open(asr_result_filename, 'r')
+        asr_result_file = open(asr_result_filename, 'r', encoding='utf-8')
         asr_result_str = asr_result_file.readline().strip()
         asr_result_file.close()
 
         annotation_index = annotation_basename_list.index(asr_result_basename)
         annotation_filename = annotation_list[annotation_index]
-        annotation_file = open(annotation_filename, 'r')
+        annotation_file = open(annotation_filename, 'r', encoding='utf-8')
         # just read 1st line of annotation file (speech content)
         annotation_str = annotation_file.readline().strip()
         annotation_file.close()
@@ -121,7 +121,7 @@ def asr_result_check(audio_path, asr_result_path, annotation_path, keep_num, out
 
     # save the result list to json file, one line per audio
     output_json_file = os.path.join(output_path, 'result.json')
-    json_file = open(output_json_file, 'w')
+    json_file = open(output_json_file, 'w', encoding='utf-8')
     for asr_result in sorted_asr_result_check_list:
         json_file.write(str(asr_result) + '\n')
     json_file.close()

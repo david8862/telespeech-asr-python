@@ -108,14 +108,14 @@ def process(queue, subtitle_txt_dict, wav_16k_dict, min_duration, max_duration, 
                 # 7HZzGyALfuc_2 Bir gün daha sabredebilirsin
                 # ......
                 #
-                #with open(subtitle_text_file, "a") as f:
+                #with open(subtitle_text_file, "a", encoding='utf-8') as f:
                     #f.write(f"%s %s\n" % (segment_id_str, subtitle_text.lower()))
 
                 # record subtitle text into subtitle text file, like:
                 # cat output/subtitles/-3CSDniPZYY_0.txt
                 # dil ne bilir şekeri şerbeti aldığın lezzeti baldan mı sandın?
                 subtitle_text_file = os.path.join(subtitle_text_path, segment_id_str+'.txt')
-                with open(subtitle_text_file, "w") as f:
+                with open(subtitle_text_file, "w", encoding='utf-8') as f:
                     f.write("%s\n" % subtitle_text.lower())
 
                 segment_index = segment_index + 1
@@ -207,14 +207,14 @@ def singleprocess(audio_id_list, subtitle_txt_dict, wav_16k_dict, min_duration, 
                 # 7HZzGyALfuc_2 Bir gün daha sabredebilirsin
                 # ......
                 #
-                #with open(subtitle_text_file, "a") as f:
+                #with open(subtitle_text_file, "a", encoding='utf-8') as f:
                     #f.write(f"%s %s\n" % (segment_id_str, subtitle_text.lower()))
 
                 # record subtitle text into subtitle text file, like:
                 # cat output/subtitles/-3CSDniPZYY_0.txt
                 # dil ne bilir şekeri şerbeti aldığın lezzeti baldan mı sandın?
                 subtitle_text_file = os.path.join(subtitle_text_path, segment_id_str+'.txt')
-                with open(subtitle_text_file, "w") as f:
+                with open(subtitle_text_file, "w", encoding='utf-8') as f:
                     f.write("%s\n" % subtitle_text.lower())
 
                 segment_index = segment_index + 1

@@ -93,7 +93,7 @@ def turkish_batch_inference(input_audio_path, asr_model_path, asr_model_file, lm
         # save ASR result segments to txt file
         txt_file_basename = os.path.splitext(os.path.split(audio_file)[-1])[0]
         txt_file_name = os.path.join(output_path, txt_file_basename + '.txt')
-        txt_file = open(txt_file_name, 'w')
+        txt_file = open(txt_file_name, 'w', encoding='utf-8')
         txt_file.write(output_text)
 
         txt_file.close()

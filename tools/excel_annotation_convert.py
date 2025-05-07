@@ -37,7 +37,7 @@ def excel_annotation_convert(input_excel, output_path, content_only):
         # target txt annotation file
         txt_file_basename = os.path.splitext(os.path.split(audio_file_name)[-1])[0]
         txt_file_name = os.path.join(output_path, txt_file_basename+'.txt')
-        txt_file = open(txt_file_name, 'w')
+        txt_file = open(txt_file_name, 'w', encoding='utf-8')
 
         # write speech content
         txt_file.write(str(speech_content))
