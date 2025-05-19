@@ -59,7 +59,7 @@ def jtubespeech_yamnet_check(wav_16k_path, subtitle_path, output_path):
     os.makedirs(output_audio_path, exist_ok=True)
     os.makedirs(output_subtitle_path, exist_ok=True)
 
-    pbar = tqdm(total=len(wav_list), desc='Whisper ASR inference')
+    pbar = tqdm(total=len(wav_list), desc='YAMNet audio check')
     for wav_file in wav_list:
         sample_rate, wav_data = wavfile.read(wav_file, 'rb')
         sample_rate, wav_data = ensure_sample_rate(sample_rate, wav_data)
@@ -102,7 +102,7 @@ def main():
     parser.add_argument('--subtitle_path', type=str, required=True,
                         help='directory for jtubespeech .txt subtitle files')
     parser.add_argument('--output_path', type=str, required=False, default='output',
-                        help='output path to save split audio segment files. default=%(default)s')
+                        help='output path to save speech audio segment files. default=%(default)s')
     args = parser.parse_args()
 
     jtubespeech_yamnet_check(args.wav_16k_path, args.subtitle_path, args.output_path)

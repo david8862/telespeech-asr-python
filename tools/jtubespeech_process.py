@@ -220,6 +220,7 @@ def singleprocess(audio_id_list, subtitle_txt_dict, wav_16k_dict, min_duration, 
                 segment_index = segment_index + 1
         except Exception as e:
             print('Exception: ', e)
+            pbar.update(1)
             continue
         pbar.update(1)
     pbar.close()

@@ -25,7 +25,7 @@ def excel_annotation_convert(input_excel, output_path, content_only):
     for i in range(audio_num):
         # parse annotation content
         audio_file_name = df.values[i, 0]
-        if not audio_file_name.endswith('.wav')
+        if not audio_file_name.endswith('.wav'):
             audio_file_name = os.path.splitext(audio_file_name)[0] + '.wav'
 
         speech_content = df.values[i, 1]

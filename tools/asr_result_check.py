@@ -84,21 +84,22 @@ def asr_result_check(audio_path, asr_result_path, annotation_path, keep_num, out
 
         # record the audio in list if there's any mismatch charactor number, with format:
         #  [
-        #    ['audio file name', 'annotation text', 'mismatch char number']
+        #    ['audio file name', 'annotation text', 'mismatch char rate']
         #  ]
         # like:
         # [
-        #   ['00001.wav', '开始清洁', 3],
-        #   ['00002.wav', '吸力大点', 2],
+        #   ['00001.wav', '开始清洁', 0.75],
+        #   ['00002.wav', '吸力大点', 0.5],
         #   ......
         # ]
         if mismatch_char_num > 0:
+            mismatch_char_rate = float(mismatch_char_num) / len(annotation_str)
             audio_filename = os.path.splitext(asr_result_basename)[0] + '.wav'
-            asr_result_check_list.append([audio_filename, annotation_str, mismatch_char_num])
+            asr_result_check_list.append([audio_filename, annotation_str, mismatch_char_rate])
         pbar.update(1)
     pbar.close()
 
-    # descend sort the list with "mismatch_char_num"
+    # descend sort the list with "mismatch_char_rate"
     sorted_asr_result_check_list = sorted(asr_result_check_list, key=lambda item:item[2], reverse=True)
 
     # only keep top N if needed
