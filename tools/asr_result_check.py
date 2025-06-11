@@ -9,6 +9,9 @@ import glob
 from tqdm import tqdm
 import shutil
 import json
+from pypinyin import pinyin, lazy_pinyin
+import cn2an
+
 
 def count_same_chars_set(str1, str2):
     set1 = set(str1)
@@ -34,7 +37,7 @@ def count_same_chars_list(str1, str2):
     return len(same_chars)
 
 
-def asr_result_check(audio_path, asr_result_path, annotation_path, keep_num, output_path):
+def asr_result_check(audio_path, asr_result_path, annotation_path, keep_num, convert_to_pinyin, output_path):
     # get .txt result file list or single .txt result file
     if os.path.isfile(asr_result_path):
         asr_result_list = [asr_result_path]
@@ -75,27 +78,35 @@ def asr_result_check(audio_path, asr_result_path, annotation_path, keep_num, out
         annotation_str = annotation_file.readline().strip()
         annotation_file.close()
 
+        if convert_to_pinyin:
+            # convert chinese numerals to arabic numerals, and then to pinyin
+            annotation_str_to_compare = ' '.join(lazy_pinyin(cn2an.transform(annotation_str, 'an2cn')))
+            asr_result_str_to_compare = ' '.join(lazy_pinyin(cn2an.transform(asr_result_str, 'an2cn')))
+        else:
+            annotation_str_to_compare = annotation_str
+            asr_result_str_to_compare = asr_result_str
+
         # compare annotation string & ASR result string, to get mismatch charactor number
-        mismatch_char_num = len(annotation_str) - count_same_chars_set(annotation_str, asr_result_str)
-        #mismatch_char_num = len(annotation_str) - count_same_chars_dict(annotation_str, asr_result_str)
-        #mismatch_char_num = len(annotation_str) - count_same_chars_list(annotation_str, asr_result_str)
+        #mismatch_char_num = len(annotation_str_to_compare) - count_same_chars_set(annotation_str_to_compare, asr_result_str_to_compare)
+        #mismatch_char_num = len(annotation_str_to_compare) - count_same_chars_dict(annotation_str_to_compare, asr_result_str_to_compare)
+        mismatch_char_num = len(annotation_str_to_compare) - count_same_chars_list(annotation_str_to_compare, asr_result_str_to_compare)
 
         assert (mismatch_char_num >= 0), 'invalid mismatch charactor number: %d' % mismatch_char_num
 
         # record the audio in list if there's any mismatch charactor number, with format:
         #  [
-        #    ['audio file name', 'annotation text', 'mismatch char rate']
+        #    ['audio file name', 'annotation text', 'mismatch char rate', 'asr result text']
         #  ]
         # like:
         # [
-        #   ['00001.wav', '开始清洁', 0.75],
-        #   ['00002.wav', '吸力大点', 0.5],
+        #   ['00001.wav', '开始清洁', 0.75, '楷时清姐'],
+        #   ['00002.wav', '吸力大点', 0.5, '犀利大点'],
         #   ......
         # ]
         if mismatch_char_num > 0:
-            mismatch_char_rate = float(mismatch_char_num) / len(annotation_str)
+            mismatch_char_rate = float(mismatch_char_num) / len(annotation_str_to_compare)
             audio_filename = os.path.splitext(asr_result_basename)[0] + '.wav'
-            asr_result_check_list.append([audio_filename, annotation_str, mismatch_char_rate])
+            asr_result_check_list.append([audio_filename, annotation_str, mismatch_char_rate, asr_result_str])
         pbar.update(1)
     pbar.close()
 
@@ -139,11 +150,13 @@ def main():
                         help='file or directory for txt format annotation')
     parser.add_argument('--keep_num', type=int, required=False, default=-1,
                         help='only keep top N audios in result, -1 for keep all. default=%(default)s')
+    parser.add_argument('--convert_to_pinyin', default=False, action="store_true",
+                        help='to convert Chinese annotation & ASR result string to pinyin for compare')
     parser.add_argument('--output_path', type=str, required=False, default='output',
                         help='output path to save the check result. default=%(default)s')
     args = parser.parse_args()
 
-    asr_result_check(args.audio_path, args.asr_result_path, args.annotation_path, args.keep_num, args.output_path)
+    asr_result_check(args.audio_path, args.asr_result_path, args.annotation_path, args.keep_num, args.convert_to_pinyin, args.output_path)
 
 
 if __name__ == "__main__":
